@@ -945,24 +945,45 @@ var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/94rb2jd_835329';
   <!-- Ícone -->
   <div style="width:80px;height:80px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:22px;box-shadow:0 8px 32px rgba(245,158,11,.45)">⚡</div>
 
-  <!-- Painel gate (e-mail) -->
+  <!-- Painel gate (nome + e-mail) -->
   <div id="trial-gate-panel" style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:0">
 
     <!-- Título -->
-    <div style="text-align:center;margin-bottom:28px">
+    <div style="text-align:center;margin-bottom:24px">
       <div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1">Eletricista Power<br><span style="color:#f59e0b">DEMO GRÁTIS</span></div>
       <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.6">Teste todas as funcionalidades uma vez.<br>Cada e-mail libera <b style="color:#f59e0b">1 sessão gratuita</b>.</div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- Nome -->
+      <input id="trial-nome-inp" type="text" placeholder="Seu nome completo"
+        autocomplete="name"
+        style="width:100%;box-sizing:border-box;padding:15px 16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;color:#fff;font-size:15px;font-family:'Syne',sans-serif;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='rgba(245,158,11,.7)'"
+        onblur="this.style.borderColor='rgba(255,255,255,.12)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('trial-email-inp').focus()">
+
+      <!-- E-mail -->
       <input id="trial-email-inp" type="email" placeholder="Seu melhor e-mail"
         autocomplete="email"
+        style="width:100%;box-sizing:border-box;padding:15px 16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;color:#fff;font-size:15px;font-family:'Syne',sans-serif;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='rgba(245,158,11,.7)'"
+        onblur="_trialVerificarTypo();this.style.borderColor='rgba(255,255,255,.12)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('trial-email2-inp').focus()">
+
+      <!-- Sugestão de typo -->
+      <div id="trial-typo" style="display:none;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:11px;padding:10px 14px;color:#fbbf24;font-size:12px;font-weight:600;cursor:pointer"></div>
+
+      <!-- Confirmar e-mail -->
+      <input id="trial-email2-inp" type="email" placeholder="Confirme seu e-mail"
+        autocomplete="off"
         style="width:100%;box-sizing:border-box;padding:15px 16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;color:#fff;font-size:15px;font-family:'Syne',sans-serif;outline:none;transition:border-color .2s"
         onfocus="this.style.borderColor='rgba(245,158,11,.7)'"
         onblur="this.style.borderColor='rgba(255,255,255,.12)'"
         onkeydown="if(event.key==='Enter')_trialIniciar()">
 
-      <!-- Mensagem de erro/bloqueio -->
+      <!-- Mensagem de erro -->
       <div id="trial-erro" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:11px;padding:11px 14px;color:#f87171;font-size:13px;font-weight:600"></div>
 
       <!-- Botão iniciar -->
@@ -974,7 +995,7 @@ var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/94rb2jd_835329';
       </button>
 
       <div style="text-align:center;font-size:11px;color:rgba(255,255,255,.3);line-height:1.5">
-        Sem cadastro. Sem cartão. Só o e-mail.
+        Sem cartão. Sem cobrança. Só o e-mail.
       </div>
     </div>
   </div>
@@ -983,8 +1004,8 @@ var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/94rb2jd_835329';
   <div id="trial-bloqueado-panel" style="display:none;width:100%;max-width:360px;text-align:center">
     <div style="font-size:56px;margin-bottom:16px">🔒</div>
     <div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:8px">Teste já utilizado</div>
-    <div id="trial-bloqueado-msg" style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:28px;line-height:1.6"></div>
-    <a id="trial-comprar-btn" href="https://pay.cakto.com.br/94rb2jd_835329" target="_blank"
+    <div id="trial-bloqueado-msg" style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:28px;line-height:1.6;white-space:pre-line"></div>
+    <a id="trial-comprar-btn" href="javascript:void(0)" onclick="window.open(DEMO_LINK_COMPRA,'_blank')" target="_blank"
       style="display:block;width:100%;box-sizing:border-box;padding:16px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:14px;color:#000;font-size:15px;font-weight:900;font-family:'Syne',sans-serif;text-decoration:none;text-align:center;box-shadow:0 6px 24px rgba(245,158,11,.4);margin-bottom:12px">
       🛒 Comprar versão completa
     </a>
@@ -6797,65 +6818,169 @@ function _trialBloqueado(email) {
     'O e-mail ' + email + ' já utilizou o teste gratuito.\nAdquira a versão completa para acesso ilimitado.';
 }
 
-function _trialLiberar(email) {
+function _trialLiberar(email, nome) {
   DEMO_EMAIL = email;
   var overlay = document.getElementById('login-overlay');
   overlay.style.opacity       = '0';
   overlay.style.pointerEvents = 'none';
-  // preencher e-mail no painel de ajustes para referência
   try { document.getElementById('acesso-email').textContent = email + ' (demo)'; } catch(e) {}
   try {
     document.getElementById('acesso-status-dot').style.background = '#f59e0b';
     document.getElementById('acesso-status-txt').style.color      = '#f59e0b';
     document.getElementById('acesso-status-txt').textContent      = 'Demo ativa';
   } catch(e) {}
+  try {
+    var nEl = document.getElementById('home-nome');
+    if (nEl && nome) nEl.textContent = nome.split(' ')[0];
+  } catch(e) {}
   if (!window._appReady) {
     window._appReady = true;
     _appInit();
+  }
+  _demoTimerIniciar();
+}
+
+// ── domínios suspeitos (typo detection) ───────────────────────
+var _dominiosSuspeitos = {
+  'gmial.com':'gmail.com','gmai.com':'gmail.com','gamil.com':'gmail.com',
+  'gnail.com':'gmail.com','gmal.com':'gmail.com','gmail.co':'gmail.com',
+  'hotmal.com':'hotmail.com','hotmai.com':'hotmail.com','hotmial.com':'hotmail.com',
+  'hotmail.co':'hotmail.com','homail.com':'hotmail.com',
+  'yahooo.com':'yahoo.com','yaho.com':'yahoo.com','yhoo.com':'yahoo.com',
+  'outlok.com':'outlook.com','outloo.com':'outlook.com','outllok.com':'outlook.com'
+};
+
+function _trialVerificarTypo() {
+  var v = document.getElementById('trial-email-inp').value.trim();
+  var typoEl = document.getElementById('trial-typo');
+  if (!v || v.indexOf('@') === -1) { typoEl.style.display = 'none'; return; }
+  var dominio = v.split('@')[1].toLowerCase();
+  var sugestao = _dominiosSuspeitos[dominio];
+  if (sugestao) {
+    var correto = v.split('@')[0] + '@' + sugestao;
+    typoEl.textContent = '💡 Você quis dizer ' + correto + '? Toque para corrigir.';
+    typoEl.style.display = 'block';
+    typoEl.onclick = function() {
+      document.getElementById('trial-email-inp').value = correto;
+      typoEl.style.display = 'none';
+    };
+  } else {
+    typoEl.style.display = 'none';
   }
 }
 
 // ── lógica principal de validação ─────────────────────────────
 async function _trialIniciar() {
+  var nome  = document.getElementById('trial-nome-inp').value.trim();
   var raw   = document.getElementById('trial-email-inp').value.trim().toLowerCase();
+  var raw2  = document.getElementById('trial-email2-inp').value.trim().toLowerCase();
   document.getElementById('trial-erro').style.display = 'none';
 
-  // validação básica de formato
+  // validações
+  if (!nome || nome.split(' ').filter(function(p){return p.length>=2;}).length < 2) {
+    _trialErro('Digite seu nome e sobrenome.'); return;
+  }
   if (!raw || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) {
     _trialErro('Digite um e-mail válido.'); return;
+  }
+  if (!raw2) {
+    _trialErro('Confirme seu e-mail.'); return;
+  }
+  if (raw !== raw2) {
+    _trialErro('Os e-mails não coincidem. Verifique e tente novamente.'); return;
   }
 
   _trialSetBtn(true);
 
   try {
-    // chave segura: troca @ e . por _
     var docId = raw.replace('@','_at_').replace(/\./g,'_dot_');
     var ref   = _fbDb.collection('demo_trials').doc(docId);
     var snap  = await ref.get();
 
     if (snap.exists) {
-      // já usou — bloquear
       _trialSetBtn(false);
       _trialBloqueado(raw);
       return;
     }
 
-    // primeira vez — registrar e liberar
+    // primeira vez — registrar
+    var firstName = nome.split(' ')[0];
     await ref.set({
-      email: raw,
-      data:  new Date().toISOString(),
-      ua:    navigator.userAgent.substring(0, 200)
+      email:     raw,
+      nome:      nome,
+      firstName: firstName,
+      data:      new Date().toISOString(),
+      ua:        navigator.userAgent.substring(0, 200)
     });
 
+    // enviar ao Brevo
+    _brevoAddContact(raw, firstName, nome);
+
     _trialSetBtn(false);
-    _trialLiberar(raw);
+    _trialLiberar(raw, nome);
 
   } catch(err) {
     _trialSetBtn(false);
-    // se Firestore falhar (offline), libera sem registrar — evita bloquear usuário por erro
     console.warn('Firestore trial check failed:', err);
-    _trialLiberar(raw);
+    _trialLiberar(raw, nome);
   }
+}
+
+// ── integração Brevo (endpoint público) ───────────────────────
+function _brevoAddContact(email, firstName, fullName) {
+  try {
+    fetch('https://a9e1c917.sibforms.com/serve/MUIFAC6sQbflKz9_NNgTTJ8TKRIEnFVUsf6qf3i9BsQIb1O2MB9c4GPpRYOUw_w7jT8i_zY98Rr_DwGTOtqizq1r4SPmTYF1ED4dCIL-V5j2xwltdqV897Xf04sNqd46trc6_ufgA-XiqHuKIQrVkDFvHOwySvNVq6ZViqBxivVF_c6fKLsyPX82ZFP_TGhLb-EC_Xw2DcSEF5dWwQ==', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'EMAIL=' + encodeURIComponent(email) + '&email_address_check=&locale=pt'
+    }).catch(function(){});
+  } catch(e) {}
+}
+
+// ── timer de demo: 10 minutos ─────────────────────────────────
+var _demoTimer = null;
+var _demoSegundos = 600; // 10 minutos
+
+function _demoTimerIniciar() {
+  if (!DEMO) return;
+  _demoSegundos = 600;
+  _demoTimer = setInterval(function() {
+    _demoSegundos--;
+    _demoAtualizarBanner();
+    if (_demoSegundos <= 0) {
+      clearInterval(_demoTimer);
+      _demoExpirar();
+    }
+  }, 1000);
+}
+
+function _demoAtualizarBanner() {
+  var el = document.getElementById('demo-timer-txt');
+  if (!el) return;
+  var m = Math.floor(_demoSegundos / 60);
+  var s = _demoSegundos % 60;
+  el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function _demoExpirar() {
+  // Remove banner
+  var banner = document.getElementById('demo-banner');
+  if (banner) banner.remove();
+  document.body.style.paddingTop = '0';
+
+  // Cria tela de expiração
+  var tela = document.createElement('div');
+  tela.id = 'demo-expirado';
+  tela.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#060810;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;font-family:Syne,sans-serif;text-align:center;';
+  tela.innerHTML =
+    '<div style="position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;background:radial-gradient(circle,rgba(245,158,11,.18) 0%,transparent 70%);pointer-events:none"></div>' +
+    '<div style="font-size:64px;margin-bottom:16px">⏰</div>' +
+    '<div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:10px;line-height:1.2">Seu teste acabou!</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:32px;line-height:1.7;max-width:300px">Esperamos que tenha gostado do <b style="color:#f59e0b">Eletricista Power</b>.<br>Adquira a versão completa e organize seu negócio de verdade.</div>' +
+    '<a href="' + DEMO_LINK_COMPRA + '" target="_blank" style="display:block;width:100%;max-width:320px;box-sizing:border-box;padding:18px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:14px;color:#000;font-size:16px;font-weight:900;text-decoration:none;margin-bottom:14px;box-shadow:0 6px 24px rgba(245,158,11,.4)">🛒 Comprar versão completa</a>' +
+    '<div style="font-size:11px;color:rgba(255,255,255,.25)">Acesso imediato após a compra</div>';
+  document.body.appendChild(tela);
 }
 
 // ── banner fixo PRO dentro do app ────────────────────────────
@@ -6864,11 +6989,10 @@ function _demoBannerInit() {
   if (!DEMO) return;
   var banner = document.createElement('div');
   banner.id = 'demo-banner';
-  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:8888;background:linear-gradient(90deg,#d97706,#f59e0b);color:#000;font-size:12px;font-weight:900;font-family:Syne,sans-serif;text-align:center;padding:7px 16px;display:flex;align-items:center;justify-content:center;gap:10px;';
-  banner.innerHTML = '⚡ MODO DEMO — <span style="font-weight:600">PDF, histórico e backup bloqueados</span> &nbsp;|&nbsp; <a href="' + DEMO_LINK_COMPRA + '" target="_blank" style="color:#000;font-weight:900;text-decoration:underline">Comprar versão PRO →</a>';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:8888;background:linear-gradient(90deg,#d97706,#f59e0b);color:#000;font-size:11px;font-weight:900;font-family:Syne,sans-serif;text-align:center;padding:6px 12px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;';
+  banner.innerHTML = '⚡ MODO DEMO &nbsp;|&nbsp; ⏱ <span id="demo-timer-txt" style="font-family:monospace;font-size:12px">10:00</span> restantes &nbsp;|&nbsp; <a href="' + DEMO_LINK_COMPRA + '" target="_blank" style="color:#000;font-weight:900;text-decoration:underline">Comprar PRO →</a>';
   document.body.prepend(banner);
-  // empurrar o conteúdo para baixo do banner
-  document.body.style.paddingTop = '34px';
+  document.body.style.paddingTop = '32px';
 }
 
 // ── modal de bloqueio de feature ──────────────────────────────
