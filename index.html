@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -932,7 +932,7 @@ var _scpPrice            = null;
 // false = versão PRO completa
 var DEMO = true;
 var DEMO_EMAIL = '';          // e-mail validado nesta sessão
-var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/94rb2jd_835329';
+var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/k7h9aap_811577';
 </script>
 </head>
 <body>
@@ -956,6 +956,13 @@ var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/94rb2jd_835329';
     </div>
 
     <div style="display:flex;flex-direction:column;gap:12px">
+      <input id="trial-nome-inp" type="text" placeholder="Seu nome"
+        autocomplete="given-name"
+        style="width:100%;box-sizing:border-box;padding:15px 16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;color:#fff;font-size:15px;font-family:'Syne',sans-serif;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='rgba(245,158,11,.7)'"
+        onblur="this.style.borderColor='rgba(255,255,255,.12)'"
+        onkeydown="if(event.key==='Enter')_trialIniciar()">
+
       <input id="trial-email-inp" type="email" placeholder="Seu melhor e-mail"
         autocomplete="email"
         style="width:100%;box-sizing:border-box;padding:15px 16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;color:#fff;font-size:15px;font-family:'Syne',sans-serif;outline:none;transition:border-color .2s"
@@ -985,7 +992,7 @@ var DEMO_LINK_COMPRA = 'https://pay.cakto.com.br/94rb2jd_835329';
     <div style="font-size:56px;margin-bottom:16px">🔒</div>
     <div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:8px">Teste já utilizado</div>
     <div id="trial-bloqueado-msg" style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:28px;line-height:1.6"></div>
-    <a id="trial-comprar-btn" href="https://pay.cakto.com.br/94rb2jd_835329" target="_blank"
+    <a id="trial-comprar-btn" href="https://pay.cakto.com.br/k7h9aap_811577" target="_blank"
       style="display:block;width:100%;box-sizing:border-box;padding:16px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:14px;color:#000;font-size:15px;font-weight:900;font-family:'Syne',sans-serif;text-decoration:none;text-align:center;box-shadow:0 6px 24px rgba(245,158,11,.4);margin-bottom:12px">
       🛒 Comprar versão completa
     </a>
@@ -6817,10 +6824,12 @@ function _trialLiberar(email) {
 
 // ── lógica principal de validação ─────────────────────────────
 async function _trialIniciar() {
+  var nome  = (document.getElementById('trial-nome-inp').value.trim()) || '';
   var raw   = document.getElementById('trial-email-inp').value.trim().toLowerCase();
   document.getElementById('trial-erro').style.display = 'none';
 
-  // validação básica de formato
+  // validações
+  if (!nome) { _trialErro('Digite seu nome.'); return; }
   if (!raw || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) {
     _trialErro('Digite um e-mail válido.'); return;
   }
@@ -6842,10 +6851,15 @@ async function _trialIniciar() {
 
     // primeira vez — registrar e liberar
     await ref.set({
-      email: raw,
-      data:  new Date().toISOString(),
-      ua:    navigator.userAgent.substring(0, 200)
+      email:     raw,
+      nome:      nome,
+      firstName: nome.split(' ')[0],
+      data:      new Date().toISOString(),
+      ua:        navigator.userAgent.substring(0, 200)
     });
+
+    // enviar para lista DEMO no Brevo
+    _brevoAddContact(raw, nome.split(' ')[0], nome);
 
     _trialSetBtn(false);
     _trialLiberar(raw);
@@ -6855,6 +6869,30 @@ async function _trialIniciar() {
     // se Firestore falhar (offline), libera sem registrar — evita bloquear usuário por erro
     console.warn('Firestore trial check failed:', err);
     _trialLiberar(raw);
+  }
+}
+
+// ── integração Brevo ────────────────────────────────────────
+async function _brevoAddContact(email, firstName, fullName) {
+  try {
+    await fetch("https://api.brevo.com/v3/contacts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": "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"
+      },
+      body: JSON.stringify({
+        email:      email,
+        listIds:    [7],
+        updateEnabled: true,
+        attributes: {
+          FIRSTNAME: firstName,
+          LASTNAME:  fullName
+        }
+      })
+    });
+  } catch(e) {
+    console.warn("Brevo sync failed:", e);
   }
 }
 
